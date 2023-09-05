@@ -1,0 +1,4 @@
+size: 900
+disk_count: 3
+user: ubuntu
+mount_point: "/mnt/data"

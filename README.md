@@ -16,7 +16,7 @@ To use this tool, you need to create a YAML configuration file (config.yaml) wit
     size: 10              # Size of each partition in GB
     disk_count: 3         # Number of disk partitions
     user: whileone        # User for mounting the disks
-    mount_point: "/mnt/data" # Mount point for the disks
+    mount_point: /mnt/data # Mount point for the disks
 
 ```
 

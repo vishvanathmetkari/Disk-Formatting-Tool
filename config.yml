@@ -1,4 +1,4 @@
-size: 900
+size: 10
 disk_count: 3
-user: ubuntu
+user: whileone
 mount_point: "/mnt/data"

@@ -18,6 +18,7 @@ def create_partition(size,partition,device_path,user,mount_point):
     print("--- Deleted all partitions and re-creating -----")
     print()
     print()
+    # password = input("Enter password :")
     disk_path = '/dev/{}'.format(device_path)
     partitions_created_count=partition
     for number in range(partition):
@@ -30,7 +31,7 @@ def create_partition(size,partition,device_path,user,mount_point):
                 disk_name = device_path+'{}'.format(number+1)
                 mounting_path = '{}_{}'.format(mount_point,disk_name[2:])
             partition_path = f"/dev/{disk_name}"
-            print("--------------------------------------------------------------------")
+            print(YELLOW+"--------------------------------------------------------------------"+RESET)
             try:
                 fdisk_command = f"sudo gdisk {disk_path}"
                 child = pexpect.spawn(fdisk_command)
@@ -52,7 +53,7 @@ def create_partition(size,partition,device_path,user,mount_point):
                 time.sleep(.2)
 
                 child.expect("Hex code or GUID.*:")
-                child.sendline("")  # Send 'w' to write changes and exit
+                child.sendline("") 
                 time.sleep(.2)
 
                 child.expect("Command.*:")
@@ -60,7 +61,7 @@ def create_partition(size,partition,device_path,user,mount_point):
                 time.sleep(.2)
 
                 child.expect("Do you want to proceed.*:")
-                child.sendline("Y")  # Send 'w' to write changes and exit
+                child.sendline("Y") 
                 time.sleep(.2)
 
                 child.expect(pexpect.EOF)
@@ -81,6 +82,7 @@ def create_partition(size,partition,device_path,user,mount_point):
                     print("--- mount point {} created successfully !!!!".format(mounting_path))
                     time.sleep(1)
                 except:
+                    print("deleting moubting point and recreating !!!!")
                     delete_data = 'sudo rm -rf {}/*'.format(mounting_path)
                     subprocess.run(delete_data, shell=True, check=True)
                 
@@ -100,7 +102,7 @@ def create_partition(size,partition,device_path,user,mount_point):
                 print("Disk {} mount succesfully at {}".format(disk_name,mounting_path))
                 time.sleep(1)
                 partitions_created_count -=1
-                print("remaining partitions : ",partitions_created_count)
+                print(CYAN+"remaining partitions : {} ".format(partitions_created_count)+RESET)
 
                 # print(" Your disk has been successfully created. It is now ready for use.")
             except pexpect.ExceptionPexpect as e:

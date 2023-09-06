@@ -13,18 +13,16 @@ BLUE = "\033[34m"
 CYAN = "\033[36m"
 RESET = "\033[0m"  # Reset to default color
 
-
 pattern_nvme = r'^nvme'
 pattern_s = r'^s'
 
-# Function to convert storage units to gigabytes
 def convert_to_gigabytes(value):
     if value[-1] == "T":
         return float(value[:-1]) * 1024  # Convert terabytes to gigabytes
     elif value[-1] == "G":
         return float(value[:-1])  # No conversion needed, already in gigabytes
     elif value[-1] == "K":
-        return float(value[:-1]) / (1024 * 1024)  # No conversion needed, already in gigabytes
+        return float(value[:-1]) / (1024 * 1024)
     else:
         raise ValueError("Invalid unit detected")
     
@@ -38,7 +36,7 @@ def get_remaining_size(re_value):
             converted_size= float(i[:-1])  # No conversion needed, already in gigabytes
             size+=converted_size
         elif i[-1] == "K":
-            converted_size =float(i[:-1]) / (1024 * 1024)  # No conversion needed, already in gigabytes
+            converted_size =float(i[:-1]) / (1024 * 1024) 
             size+=converted_size
         else:
             raise ValueError("Invalid unit detected")
@@ -54,6 +52,7 @@ def get_disk_status(disk_name, flag):
     for data in parsed_data['blockdevices']:
         if data['name']==str(disk_name):
             total_disk_size = data['size']
+            total_disk_size = convert_to_gigabytes(total_disk_size)
             remaining_size_list =[]
             table = PrettyTable()
             table.field_names = [
@@ -116,21 +115,20 @@ def get_disk_status(disk_name, flag):
                         table.add_row(child_row)
                         remaining_size_list.append(child['size'])
 
-
             remaining_size=get_remaining_size(remaining_size_list)
-            remaining_gigabytes = convert_to_gigabytes(total_disk_size) - remaining_size
+            remaining_gigabytes = total_disk_size - remaining_size
             if flag == "all":
                 print()
                 print(table)
                 print()
-                print("Total Disk Size: ",RED+total_disk_size+RESET)
+                print("Total Disk Size:"+RED+" {:.1f}G".format(total_disk_size)+RESET)
                 print("Remaining storage:"+RED+" {:.1f}G".format(remaining_gigabytes)+RESET)
                 print("-----------------------------------------------------------------------")
 
             elif flag=="disk_size":
                 pass
-               # print("Total Disk Size: ",RED+total_disk_size+RESET)
-               # print("Remaining storage:"+RED+" {:.1f}G".format(remaining_gigabytes)+RESET)
-               # print("-----------------------------------------------------------------------")
+                # print("Total Disk Size: ",RED+total_disk_size+RESET)
+                # print("Remaining storage:"+RED+" {:.1f}G".format(remaining_gigabytes)+RESET)
+                # print("-----------------------------------------------------------------------")
 
     return total_disk_size ,remaining_gigabytes

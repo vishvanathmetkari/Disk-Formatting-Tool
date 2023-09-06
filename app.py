@@ -21,11 +21,8 @@ def main(config_data):
         user = config_data['user']
         print("Current user:", user)
     else:
-        # Run the 'whoami' command
         result = subprocess.run(['whoami'], stdout=subprocess.PIPE, text=True)
-        # Check if the command was successful
         if result.returncode == 0:
-            # Print the output of the 'whoami' command
             user = result.stdout.strip()
             print("Current user:", user)
         else:
@@ -40,7 +37,7 @@ def main(config_data):
             parent_disk_names = get_disk_names()
             for disk in parent_disk_names:
                 total_disk_size,remaining_gigabytes=get_disk_status(disk,"disk_size")
-                total_disk_size=convert_to_gigabytes(str(total_disk_size)) 
+                # total_disk_size=convert_to_gigabytes(str(total_disk_size)) 
                 disk_dic[disk]=float(total_disk_size)
             sorted_disk_dic = dict(sorted(disk_dic.items(), key=lambda item: item[1], reverse=True))
             sorted_disk_dic = list(sorted_disk_dic.items())
@@ -48,35 +45,35 @@ def main(config_data):
             table = PrettyTable()
             table.field_names = ["Name", "Size (G)"]
 
-            # Populate the table with dictionary data
             for key, value in sorted_disk_dic:
                 table.add_row([key, value])
             print()
             print("-------------- All Disk --------------")
-            # Print the table
             print(table)
             print()
             
             i=0
+            working_disk  =[]
             while 0<int(disk_count):
                 print("remaining disk_count : ",disk_count)
                 try:
                     device_path=sorted_disk_dic[i][0]
+                    working_disk.append(device_path)
                 except:
                     print("Disk not found ..!!")
-                    exit()
                 total_disk_size,remaining_gigabytes=get_disk_status(device_path,"disk_size")
-                total_disk_size=convert_to_gigabytes(str(total_disk_size))
+                # total_disk_size=convert_to_gigabytes(str(total_disk_size))
                 print("Disk ",device_path)
                 if float(total_disk_size) > user_size:
                     print("--- start creating new partitions ...")
                     time.sleep(3)
-                    
                     disk_count=create_partition(user_size,disk_count,device_path,user,mount_point)
                     i+=1
                     print()
-                    total_disk_size,remaining_gigabytes=get_disk_status(device_path,"all")
-                
+                    for disk in working_disk:
+                        print(CYAN+"-------------------------------- {} ---------------------------------".format(disk)+RESET)
+                        total_disk_size,remaining_gigabytes=get_disk_status(disk,"all")
+
                 elif float(total_disk_size) < user_size:
                     print()
                     print("Oppps !! you have exceeded the Disk limit")
@@ -88,7 +85,6 @@ def main(config_data):
                     print()
                     print("Invalid size detected")
                     exit()
-
         else:
             print("Both size and disk_count values are required in the YAML configuration file.")
             exit()

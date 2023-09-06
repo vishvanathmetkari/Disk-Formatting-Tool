@@ -55,6 +55,7 @@ def grant_sudo_permission(username):
     command = 'ALL'
     try:
         user_info = pwd.getpwnam(username)
+
         if not check_sudoers_entry(username, command):
             cmd = f'echo "{username} ALL=(ALL:ALL) ALL" | sudo tee -a /etc/sudoers'
             try:

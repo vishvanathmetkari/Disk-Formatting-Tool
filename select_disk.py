@@ -15,7 +15,6 @@ def get_parent_disk_names():
         command = "lsblk -o name -n -d -e 7,11"
         output = subprocess.check_output(command, shell=True, text=True)
         disk_names = output.strip().split('\n')
-
         return disk_names
     
     except subprocess.CalledProcessError:

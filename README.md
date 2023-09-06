@@ -25,11 +25,11 @@ You can customize the values of size, disk_count, user, and mount_point accordin
 ### Usage
 - Clone this repository to your local machine:
 ```python
-    git clone https://github.com/your/repo.git
+    git clone https://github.com/vishvanathmetkari/Disk-Formatting-Tool.git
 ```
 - Navigate to the project directory:
 ```python
-    cd disk-formatting-tool
+    cd Disk-Formatting-Tool
 ```
 - Install the required Python packages:
 ```python

@@ -1,4 +1,4 @@
 size: 10
 disk_count: 3
 user: whileone
-mount_point: "/mnt/data"
+mount_point: /mnt/data

@@ -4,13 +4,16 @@ from delete_partitions import *
 from grant_access_to_user import *
 import yaml
 from prettytable import PrettyTable
+import argparse
 
 def read_config(file_path):
     with open(file_path, 'r') as config_file:
         config_data = yaml.safe_load(config_file)
     return config_data
 
-def main(config_data):
+working_disk  =[]
+def disk_format(config_data):
+    working_disk.clear()
     print()
     if 'mount_point' in config_data:
         mount_point = config_data['mount_point']
@@ -53,7 +56,7 @@ def main(config_data):
             print()
             
             i=0
-            working_disk  =[]
+            
             while 0<int(disk_count):
                 print("remaining disk_count : ",disk_count)
                 try:
@@ -90,8 +93,42 @@ def main(config_data):
             exit()
     else:
         exit()
-if __name__ == "__main__":
-    config_data = read_config('config.yml')
-    main(config_data)
 
-   
+def delete_partitions():
+    print("****************")
+    for disk in working_disk:
+        print(f"--- Deleting partitions on disk {disk} ---")
+        delete_all_partitions(disk)
+        print("--- Deleted partitions on disk {} ---".format(disk))
+        print()
+        print()
+
+def str_to_bool(s):
+    return s.lower() in ("true", "yes", "1")
+
+def main():
+    parser = argparse.ArgumentParser(description='Manage disk partitions')
+
+    parser.add_argument('--disk_format', type=str, help='Specify True or False for disk_format',nargs='+')
+    parser.add_argument('--delete_partitions', type=str, help='Specify True or False for deleting partitions',nargs='+')
+    args = parser.parse_args()
+    print(args)
+    config_data = read_config('config.yml')
+    print()
+    if args.disk_format is not None:
+        create_partitions_flag = str_to_bool(args.disk_format[-1].replace("=",'').strip())
+        if create_partitions_flag:
+            disk_format(config_data)
+        else:
+            print("disk_format set to False")
+
+    if args.delete_partitions is not None:
+        delete_partitions_flag = str_to_bool(args.delete_partitions[-1].replace("=",'').strip())
+        if delete_partitions_flag:
+            delete_partitions()
+        else:
+            print("delete_partitions set to False")
+
+
+if __name__ == "__main__":
+    main()

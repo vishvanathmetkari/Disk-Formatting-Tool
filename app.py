@@ -95,7 +95,7 @@ def disk_format(config_data):
         exit()
 
 def delete_partitions():
-    print("****************")
+    print("Work in Progress")
     for disk in working_disk:
         print(f"--- Deleting partitions on disk {disk} ---")
         delete_all_partitions(disk)

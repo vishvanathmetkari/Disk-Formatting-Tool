@@ -47,13 +47,13 @@ The tool will automatically select the disk with the highest available size and 
 
 If there are remaining disks to be formatted (as specified in disk_count), the tool will select the next available disk and repeat the partitioning process until the desired number of disks are formatted.
 
-
 - To delete partitions (Work in Progress):
 
-Partition deletion functionality is currently a work in progress. Please check back for updates on how to use this feature.
 ```python
     python3 app.py --delete_partitions=True
 ```
+
+Partition deletion functionality is currently a work in progress. Please check back for updates on how to use this feature.
 
 ### Note
 Make sure to back up any important data on the disks before running this tool, as it will erase all existing data during the formatting process.

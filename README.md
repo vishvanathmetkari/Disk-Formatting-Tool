@@ -49,6 +49,7 @@ If there are remaining disks to be formatted (as specified in disk_count), the t
 
 
 - To delete partitions (Work in Progress):
+
 Partition deletion functionality is currently a work in progress. Please check back for updates on how to use this feature.
 ```python
     python3 app.py --delete_partitions=True

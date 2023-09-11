@@ -1,4 +1,3 @@
-
 import subprocess
 import os,sys
 import pexpect
@@ -12,13 +11,22 @@ import re
 pattern_nvme = r'^nvme'
 pattern_s = r'^s'
 
+def expect_and_send(child, expected, send):
+    time.sleep(.1)
+    try:
+        child.expect(expected)
+        time.sleep(.1)
+        child.sendline(send)
+    except Exception as e:
+        print("--- {} ---".format(e))
+        exit()
+
 def create_partition(size,partition,device_path,user,mount_point):
     print("----First Deleting all partitions ----")
     delete_all_partitions(device_path)
     print("--- Deleted all partitions and re-creating -----")
     print()
     print()
-    # password = input("Enter password :")
     disk_path = '/dev/{}'.format(device_path)
     partitions_created_count=partition
     for number in range(partition):
@@ -35,34 +43,15 @@ def create_partition(size,partition,device_path,user,mount_point):
             try:
                 fdisk_command = f"sudo gdisk {disk_path}"
                 child = pexpect.spawn(fdisk_command)
-                child.logfile = sys.stdout.buffer 
+                child.logfile = sys.stdout.buffer
                 time.sleep(.2)
-                child.expect("GPT fdisk.*")
-                child.sendline("n")  # Send 'p' to create a primary partition
-                time.sleep(.2)
-                child.expect("Partition number.*:")
-                child.sendline("")   # Press Enter to accept the default partition number
-                time.sleep(.2)
-
-                child.expect(".*(?i)First sector.*:")
-                child.sendline("")   # Press Enter to accept the default first sector
-                time.sleep(.2)
-
-                child.expect("Last sector.*:")
-                child.sendline("+{}G".format(size))   # Press Enter to accept the default last sector (100%)
-                time.sleep(.2)
-
-                child.expect("Hex code or GUID.*:")
-                child.sendline("") 
-                time.sleep(.2)
-
-                child.expect("Command.*:")
-                child.sendline("w")  # Send 'w' to write changes and exit
-                time.sleep(.2)
-
-                child.expect("Do you want to proceed.*:")
-                child.sendline("Y") 
-                time.sleep(.2)
+                expect_and_send(child, "GPT fdisk.*", "n")
+                expect_and_send(child,"Partition number.*:",'')
+                expect_and_send(child,".*(?i)First sector.*:",'')
+                expect_and_send(child,"Last sector.*:","+{}G".format(size))
+                expect_and_send(child,"Hex code or GUID.*:",'')
+                expect_and_send(child,"Command.*:","w")
+                expect_and_send(child,"Do you want to proceed.*:","Y")
 
                 child.expect(pexpect.EOF)
                 make_changes = 'sudo partprobe {}'.format(disk_path)

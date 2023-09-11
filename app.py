@@ -64,6 +64,7 @@ def disk_format(config_data):
                     working_disk.append(device_path)
                 except:
                     print("Disk not found ..!!")
+                    exit()
                 total_disk_size,remaining_gigabytes=get_disk_status(device_path,"disk_size")
                 # total_disk_size=convert_to_gigabytes(str(total_disk_size))
                 print("Disk ",device_path)

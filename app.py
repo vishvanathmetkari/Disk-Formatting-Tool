@@ -15,7 +15,15 @@ class DiskManager:
         with open(file_path, 'r') as config_file:
             config_data = yaml.safe_load(config_file)
         return config_data
-
+    
+    def check_size(self,d_size,user_s,calculated_size):
+        s = d_size - user_s
+        calculated_size+=user_s
+        if s > user_s:
+            res=self.check_size(s,user_s,calculated_size)
+            return res
+        return calculated_size
+    
     def disk_format(self):
         self.working_disk.clear()
         print()
@@ -37,6 +45,7 @@ class DiskManager:
         resp = grant_sudo_permission(user)
         if resp:
             if 'size' in self.config_data and 'disk_count' in self.config_data:
+                all_disk_size = 0
                 disk_dic = {}
                 user_size = int(self.config_data['size'])
                 disk_count = self.config_data['disk_count']
@@ -45,6 +54,8 @@ class DiskManager:
                 for disk in parent_disk_names:
                     total_disk_size, remaining_gigabytes = get_disk_status(disk, "disk_size")
                     disk_dic[disk] = float(total_disk_size)
+                    responce =self.check_size(total_disk_size,user_size,0)
+                    all_disk_size+=responce
                 sorted_disk_dic = dict(sorted(disk_dic.items(), key=lambda item: item[1], reverse=True))
                 sorted_disk_dic = list(sorted_disk_dic.items())
                 # Create a PrettyTable object
@@ -59,37 +70,41 @@ class DiskManager:
                 print()
 
                 i = 0
+                if all_disk_size >= user_size*disk_count:
+                    while 0 < int(disk_count):
+                        print("remaining disk_count : ", disk_count)
+                        try:
+                            device_path = sorted_disk_dic[i][0]
+                            self.working_disk.append(device_path)
+                        except:
+                            print("Disk not found ..!!")
+                            exit()
+                        total_disk_size, remaining_gigabytes = get_disk_status(device_path, "disk_size")
+                        print("Disk ", device_path)
+                        if float(total_disk_size) > user_size:
+                            print("--- start creating new partitions ...")
+                            disk_count = create_partition(user_size, disk_count, device_path, user, mount_point)
+                            i += 1
+                            print()
+                            for disk in self.working_disk:
+                                print(CYAN + "-------------------------------- {} ---------------------------------".format(disk) + RESET)
+                                total_disk_size, remaining_gigabytes = get_disk_status(disk, "all")
 
-                while 0 < int(disk_count):
-                    print("remaining disk_count : ", disk_count)
-                    try:
-                        device_path = sorted_disk_dic[i][0]
-                        self.working_disk.append(device_path)
-                    except:
-                        print("Disk not found ..!!")
-                        exit()
-                    total_disk_size, remaining_gigabytes = get_disk_status(device_path, "disk_size")
-                    print("Disk ", device_path)
-                    if float(total_disk_size) > user_size:
-                        print("--- start creating new partitions ...")
-                        disk_count = create_partition(user_size, disk_count, device_path, user, mount_point)
-                        i += 1
-                        print()
-                        for disk in self.working_disk:
-                            print(CYAN + "-------------------------------- {} ---------------------------------".format(disk) + RESET)
-                            total_disk_size, remaining_gigabytes = get_disk_status(disk, "all")
-
-                    elif float(total_disk_size) < user_size:
-                        print()
-                        print("Oppps !! you have exceeded the Disk limit")
-                        print("Total Disk size : ", total_disk_size)
-                        print("User-entered total size : {}G".format(user_size))
-                        print()
-                        exit()
-                    else:
-                        print()
-                        print("Invalid size detected")
-                        exit()
+                        elif float(total_disk_size) < user_size:
+                            print()
+                            print("Oppps !! you have exceeded the Disk limit")
+                            print("Total Disk size : ", total_disk_size)
+                            print("User-entered total size : {}G".format(user_size))
+                            print()
+                            exit()
+                        else:
+                            print()
+                            print("Invalid size detected")
+                            exit()
+                else:
+                    print("Insufficient disk space")
+                    print("Usable disk size:",all_disk_size)
+                    exit()                    
             else:
                 print("Both size and disk_count values are required in the YAML configuration file.")
                 exit()
